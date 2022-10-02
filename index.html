@@ -36,7 +36,7 @@
   </div>
 
   <script>
-    const colorScale = d3.scaleOrdinal(['orangered', 'mediumblue', 'darkgreen', 'yellow']);
+    const colorScale = d3.scaleOrdinal(['white', 'mediumblue', 'darkgreen', 'yellow']);
 
     const labelsTopOrientation = new Set(['Apollo 12', 'Luna 2', 'Luna 20', 'Luna 21', 'Luna 24',
       'LCROSS Probe'
@@ -62,8 +62,7 @@
       (elem);
 
     fetch('./moon_landings.json').then(r => r.json()).then(landingSites => {
-      moon.labelsData(landingSites);
-      console.log(landingSites.filter(d => (d.lng) == 35));
+      moon.labelsData(landingSites)
     });
     
     // This is the filter function
@@ -72,7 +71,7 @@
       var yearsStr = e.options[e.selectedIndex].text;
 
       fetch('./moon_landings.json').then(r => r.json()).then(landingSites => {
-        moon.labelsData(landingSites.filter(d => (d.date) == yearsStr));
+        moon.labelsData(landingSites.filter(d => (d.date.substring(0,4)) == yearsStr));
       });
   
   }
