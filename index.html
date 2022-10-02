@@ -1,0 +1,102 @@
+<head>
+  <style>
+    body {
+      margin: 0;
+    }
+  </style>
+
+  <script src="https://unpkg.com/d3-array@3.2.0/dist/d3-array.min.js"></script>
+  <script src="https://unpkg.com/d3-scale@4.0.2/dist/d3-scale.min.js"></script>
+
+  <script src="https://unpkg.com/globe.gl@2.26.6/dist/globe.gl.min.js"></script>
+  <!--<script src="../../dist/globe.gl.js"></script>-->
+</head>
+
+<body>
+
+  <div class="filterContainer">
+
+    <select id="years">
+      <option value="0">Years</option>
+      <option value="1">1971</option>
+      <option value="2">1972</option>
+      <option value="3">1973</option>
+      <option value="4">1974</option>
+      <option value="5">1975</option>
+      <option value="6">1976</option>
+    </select>
+    <br>
+    <br>
+    <a href="javascript:;" id="go" onclick="getFilterYearJson(event)">Filter</a>
+
+  </div>
+
+  <div id="globeViz">
+
+  </div>
+
+  <script>
+    const colorScale = d3.scaleOrdinal(['orangered', 'mediumblue', 'darkgreen', 'yellow']);
+
+    const labelsTopOrientation = new Set(['Apollo 12', 'Luna 2', 'Luna 20', 'Luna 21', 'Luna 24',
+      'LCROSS Probe'
+    ]); // avoid label collisions
+
+    const elem = document.getElementById('globeViz');
+    const moon = Globe()
+      .globeImageUrl('./lunar_surface.jpg')
+      .bumpImageUrl('./lunar_bumpmap.jpg')
+      .backgroundImageUrl('./night-sky.png')
+      .showGraticules(true)
+      .showAtmosphere(false) // moon has no atmosphere
+      .labelText('label')
+      .labelSize(1.7)
+      .labelDotRadius(0.4)
+      .labelDotOrientation(d => labelsTopOrientation.has(d.label) ? 'top' : 'bottom')
+      .labelColor(d => colorScale(d.agency))
+      .labelLabel(d => `
+        <div><b>${d.label}</b></div>
+        <div>${d.agency} - ${d.program} Program</div>
+        <div>Landing on <i>${new Date(d.date).toLocaleDateString()}</i></div>
+      `)
+      (elem);
+
+    fetch('./moon_landings.json').then(r => r.json()).then(landingSites => {
+      moon.labelsData(landingSites);
+      console.log(landingSites.filter(d => (d.lng) == 35));
+    });
+    
+    // This is the filter function
+    function getFilterYearJson(){
+      var e = document.getElementById("years");
+      var yearsStr = e.options[e.selectedIndex].text;
+
+      fetch('./moon_landings.json').then(r => r.json()).then(landingSites => {
+        moon.labelsData(landingSites.filter(d => (d.date) == yearsStr));
+      });
+  
+  }
+
+  </script>
+
+  <style>
+    .filterContainer {
+      text-align: center;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 1;
+      margin: 20px;
+      background-color: white;
+      border-radius: 10px;
+      padding: 20px;
+    }
+    #go{
+      text-decoration: none;
+      color: black;
+      background: lightgray;
+      padding: 10px;
+      border-radius: 5px;
+    }
+  </style>
+</body>
